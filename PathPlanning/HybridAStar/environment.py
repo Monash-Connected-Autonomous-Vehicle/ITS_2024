@@ -113,7 +113,7 @@ class RasterEnv(Env):
 
 def main():
     env = RasterEnv()
-    env.getTrackFromImage('mrn_bin.png', target_height=4)
+    env.getTrackFromImage('PathPlanning\HybridAStar\mrn_bin.png', target_height=4)
 
     (ox, oy) = env.getObstacleXYArrays()
 
