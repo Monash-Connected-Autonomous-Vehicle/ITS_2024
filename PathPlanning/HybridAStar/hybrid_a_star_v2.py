@@ -378,6 +378,51 @@ def calc_index(node, c):
     return ind
 
 
+
+def main():
+    print("Start Hybrid A* planning")
+    env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
+    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+
+    (ox, oy) = env.getObstacleXYArrays()
+
+    # Set Initial parameters
+    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(90.0)]
+    goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
+
+    print("start : ", start)
+    print("goal : ", goal)
+
+    if show_animation:
+        plt.plot(ox, oy, ".k")
+        rs.plot_arrow(start[0], start[1], start[2], fc='g')
+        rs.plot_arrow(goal[0], goal[1], goal[2])
+
+        plt.grid(True)
+        plt.axis("equal")
+
+    path = hybrid_a_star_planning(
+        start, goal, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+
+    x = path.x_list
+    y = path.y_list
+    yaw = path.yaw_list
+
+    if show_animation:
+        for i_x, i_y, i_yaw in zip(x, y, yaw):
+            plt.cla()
+            plt.plot(ox, oy, ".k")
+            plt.plot(x, y, "-r", label="Hybrid A* path")
+            plt.grid(True)
+            plt.axis("equal")
+            plot_car(i_x, i_y, i_yaw)
+            plt.pause(1e-7)
+
+    print(__file__ + " done!!")
+
+if __name__ == '__main__':
+    main()
+'''
 def main_():
     print("Start Hybrid A* planning")
 
@@ -436,46 +481,4 @@ def main_():
 
     print(__file__ + " done!!")
 
-def main():
-    print("Start Hybrid A* planning")
-    env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
-    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
-
-    (ox, oy) = env.getObstacleXYArrays()
-
-    # Set Initial parameters
-    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(90.0)]
-    goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
-
-    print("start : ", start)
-    print("goal : ", goal)
-
-    if show_animation:
-        plt.plot(ox, oy, ".k")
-        rs.plot_arrow(start[0], start[1], start[2], fc='g')
-        rs.plot_arrow(goal[0], goal[1], goal[2])
-
-        plt.grid(True)
-        plt.axis("equal")
-
-    path = hybrid_a_star_planning(
-        start, goal, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
-
-    x = path.x_list
-    y = path.y_list
-    yaw = path.yaw_list
-
-    if show_animation:
-        for i_x, i_y, i_yaw in zip(x, y, yaw):
-            plt.cla()
-            plt.plot(ox, oy, ".k")
-            plt.plot(x, y, "-r", label="Hybrid A* path")
-            plt.grid(True)
-            plt.axis("equal")
-            plot_car(i_x, i_y, i_yaw)
-            plt.pause(1e-7)
-
-    print(__file__ + " done!!")
-
-if __name__ == '__main__':
-    main()
+'''

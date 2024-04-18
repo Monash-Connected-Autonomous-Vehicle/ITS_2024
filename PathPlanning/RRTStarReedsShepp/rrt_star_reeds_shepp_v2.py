@@ -16,8 +16,9 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent))
 
 from ReedsSheppPath import reeds_shepp_path_planning
 from RRTStar.rrt_star import RRTStar
+from MRNEnv.environment import RasterEnv
 
-show_animation = True
+show_animation = False
 
 
 class RRTStarReedsShepp(RRTStar):
@@ -133,11 +134,11 @@ class RRTStarReedsShepp(RRTStar):
                 plt.plot(node.path_x, node.path_y, "-g")
 
         for (ox, oy, size) in self.obstacle_list:
-            plt.plot(ox, oy, "ok", ms=30 * size)
+            plt.plot(ox, oy, "ok", ms=2*size)
 
         plt.plot(self.start.x, self.start.y, "xr")
         plt.plot(self.end.x, self.end.y, "xr")
-        plt.axis([-2, 15, -2, 15])
+        plt.axis([-2, 150, -2, 125]) # plt.axis([-2, 15, -2, 15])
         plt.grid(True)
         self.plot_start_goal_arrow()
         plt.pause(0.01)
@@ -227,25 +228,23 @@ class RRTStarReedsShepp(RRTStar):
         return path
 
 
-def main(max_iter=100):
+def main(max_iter=1000):
     print("Start " + __file__)
 
     # ====Search Path with RRT====
-    obstacleList = [
-        (5, 5, 1),
-        (4, 6, 1),
-        (4, 8, 1),
-        (4, 10, 1),
-        (6, 5, 1),
-        (7, 5, 1),
-        (8, 6, 1),
-        (8, 8, 1),
-        (8, 10, 1)
-    ]  # [x,y,size(radius)]
+    env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
+    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+    (ox, oy) = env.getObstacleXYArrays()
+    obstacleList = []
+    for i in range(len(ox)):
+        obstacleList.append((ox[i],oy[i],1))
+        # [x,y,size(radius)]
 
     # Set Initial parameters
-    start = [0.0, 0.0, np.deg2rad(0.0)]
-    goal = [6.0, 7.0, np.deg2rad(90.0)]
+    # start = [0.0, 0.0, np.deg2rad(0.0)]
+    # goal = [6.0, 7.0, np.deg2rad(90.0)]
+    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(90.0)]
+    goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
 
     rrt_star_reeds_shepp = RRTStarReedsShepp(start, goal,
                                              obstacleList,
@@ -253,7 +252,7 @@ def main(max_iter=100):
     path = rrt_star_reeds_shepp.planning(animation=show_animation)
 
     # Draw final path
-    if path and show_animation:  # pragma: no cover
+    if path: # and show_animation:  # pragma: no cover
         rrt_star_reeds_shepp.draw_graph()
         plt.plot([x for (x, y, yaw) in path], [y for (x, y, yaw) in path], '-r')
         plt.grid(True)

@@ -17,7 +17,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent))
 from ReedsSheppPath import reeds_shepp_path_planning
 from RRTStar.rrt_star import RRTStar
 
-show_animation = True
+show_animation = False
 
 
 class RRTStarReedsShepp(RRTStar):
@@ -253,7 +253,7 @@ def main(max_iter=100):
     path = rrt_star_reeds_shepp.planning(animation=show_animation)
 
     # Draw final path
-    if path and show_animation:  # pragma: no cover
+    if path:# and show_animation:  # pragma: no cover
         rrt_star_reeds_shepp.draw_graph()
         plt.plot([x for (x, y, yaw) in path], [y for (x, y, yaw) in path], '-r')
         plt.grid(True)
