@@ -77,7 +77,7 @@ class RasterEnv(Env):
         if ds_pct is not None:
             img = self.__down_sample(img, ds_pct)  # do downsampling
 
-        # img = img.filter(ImageFilter.FIND_EDGES)  # only edges of obstacles are stored
+        img = img.filter(ImageFilter.FIND_EDGES)  # only edges of obstacles are stored
 
         if target_width is not None:  # adjust scale properties of the environment
             self.width = target_width
