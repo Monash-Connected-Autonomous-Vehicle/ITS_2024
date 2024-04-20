@@ -267,7 +267,7 @@ def main():
     rrt_star = RRTStar(
         start=start,
         goal=goal,
-        rand_area=[-2, env.width // env.cell_size],
+        rand_area=[-2, env.width // env.cell_size],  # <-- this is super important
         obstacle_list=obstacleList,
         expand_dis=5,
         robot_radius=0.8,

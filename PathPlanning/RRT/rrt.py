@@ -100,7 +100,7 @@ class RRT:
                    new_node, self.obstacle_list, self.robot_radius):
                 self.node_list.append(new_node)
 
-            if animation and i % 5 == 0:
+            if animation and i % update_gap == 0:
                 self.draw_graph(rnd_node)
 
             if self.calc_dist_to_goal(self.node_list[-1].x,
@@ -111,7 +111,7 @@ class RRT:
                         final_node, self.obstacle_list, self.robot_radius):
                     return self.generate_final_course(len(self.node_list) - 1)
 
-            if animation and i % 5:
+            if animation and i % update_gap == 0:
                 self.draw_graph(rnd_node)
 
         return None  # cannot find path

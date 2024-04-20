@@ -18,7 +18,7 @@ from ReedsSheppPath import reeds_shepp_path_planning
 from RRTStar.rrt_star import RRTStar
 from MRNEnv.environment import RasterEnv
 
-show_animation = False
+show_animation = True
 
 
 class RRTStarReedsShepp(RRTStar):
@@ -39,7 +39,7 @@ class RRTStarReedsShepp(RRTStar):
     def __init__(self, start, goal, obstacle_list, rand_area,
                  max_iter=200, step_size=0.2,
                  connect_circle_dist=50.0,
-                 robot_radius=0.0
+                 robot_radius=0.0, play_area=None, curvature=1.0
                  ):
         """
         Setting Parameter
@@ -60,15 +60,16 @@ class RRTStarReedsShepp(RRTStar):
         self.obstacle_list = obstacle_list
         self.connect_circle_dist = connect_circle_dist
         self.robot_radius = robot_radius
+        self.play_area = play_area
 
-        self.curvature = 1.0
+        self.curvature = curvature
         self.goal_yaw_th = np.deg2rad(1.0)
         self.goal_xy_th = 0.5
 
     def set_random_seed(self, seed):
         random.seed(seed)
 
-    def planning(self, animation=True, search_until_max_iter=True):
+    def planning(self, animation=True, search_until_max_iter=True, update_gap=5):
         """
         planning
 
@@ -91,7 +92,7 @@ class RRTStarReedsShepp(RRTStar):
                     self.rewire(new_node, near_indexes)
                     self.try_goal_path(new_node)
 
-            if animation and i % 5 == 0:
+            if animation and i % update_gap == 0:
                 self.plot_start_goal_arrow()
                 self.draw_graph(rnd)
 
@@ -243,13 +244,21 @@ def main(max_iter=1000):
     # Set Initial parameters
     # start = [0.0, 0.0, np.deg2rad(0.0)]
     # goal = [6.0, 7.0, np.deg2rad(90.0)]
-    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(90.0)]
+    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(0)]
     goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
 
-    rrt_star_reeds_shepp = RRTStarReedsShepp(start, goal,
-                                             obstacleList,
-                                             [-2.0, 15.0], max_iter=max_iter)
-    path = rrt_star_reeds_shepp.planning(animation=show_animation)
+    rrt_star_reeds_shepp = RRTStarReedsShepp(
+        start=start,
+        goal=goal,
+        step_size=2.0,
+        rand_area=[-2, env.width // env.cell_size],  # <-- this is super important
+        obstacle_list=obstacleList,
+        robot_radius=0.8,
+        max_iter=1000, 
+        play_area=[0, env.width // env.cell_size, 0, env.height // env.cell_size],
+        curvature=0.15,
+        connect_circle_dist=100)
+    path = rrt_star_reeds_shepp.planning(animation=False, update_gap=100, search_until_max_iter=True)
 
     # Draw final path
     if path: # and show_animation:  # pragma: no cover
