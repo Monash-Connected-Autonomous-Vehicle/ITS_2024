@@ -56,10 +56,10 @@ class PID_control {
 // Define the number of motors
 #define NUM_MOTORS 4
 // Define the number of counts of encoder for a full revolution.
-#define ENC_COUNT_REV1 ???
-#define ENC_COUNT_REV2 ???
-#define ENC_COUNT_REV3 ???
-#define ENC_COUNT_REV4 ???
+#define ENC_COUNT_REV1 330
+#define ENC_COUNT_REV2 330
+#define ENC_COUNT_REV3 330
+#define ENC_COUNT_REV4 330
 
 // Define the PINS
 const int enca[]    = {?, ?, ?, ?};     // Define the input pin for Encoder A (pins needs interrupt capabilities) 
