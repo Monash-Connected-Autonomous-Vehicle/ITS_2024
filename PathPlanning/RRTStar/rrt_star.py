@@ -38,7 +38,8 @@ class RRTStar(RRT):
                  max_iter=300,
                  connect_circle_dist=50.0,
                  search_until_max_iter=False,
-                 robot_radius=0.0):
+                 robot_radius=0.0,
+                 play_area=None):
         """
         Setting Parameter
 
@@ -50,7 +51,7 @@ class RRTStar(RRT):
         """
         super().__init__(start, goal, obstacle_list, rand_area, expand_dis,
                          path_resolution, goal_sample_rate, max_iter,
-                         robot_radius=robot_radius)
+                         robot_radius=robot_radius, play_area=play_area)
         self.connect_circle_dist = connect_circle_dist
         self.goal_node = self.Node(goal[0], goal[1])
         self.search_until_max_iter = search_until_max_iter
