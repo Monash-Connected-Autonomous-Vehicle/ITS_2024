@@ -15,7 +15,7 @@ sys.path.append(str(pathlib.Path(__file__).parent.parent))
 from RRT.rrt import RRT
 from MRNEnv.environment import RasterEnv
 
-show_animation = True
+show_animation = False
 
 class RRTStar(RRT):
     """
@@ -57,7 +57,7 @@ class RRTStar(RRT):
         self.search_until_max_iter = search_until_max_iter
         self.node_list = []
 
-    def planning(self, animation=True):
+    def planning(self, animation=True, update_gap=5):
         """
         rrt star path planning
 
@@ -87,7 +87,7 @@ class RRTStar(RRT):
                 else:
                     self.node_list.append(new_node)
 
-            if animation:
+            if animation and i % update_gap == 0:
                 self.draw_graph(rnd)
 
             if ((not self.search_until_max_iter)
@@ -267,13 +267,13 @@ def main():
     rrt_star = RRTStar(
         start=start,
         goal=goal,
-        rand_area=[-2, 100],
+        rand_area=[-2, env.width // env.cell_size],
         obstacle_list=obstacleList,
-        expand_dis=10,
+        expand_dis=5,
         robot_radius=0.8,
-        max_iter=10000, 
+        max_iter=1000, 
         play_area=[0, env.width // env.cell_size, 0, env.height // env.cell_size])
-    path = rrt_star.planning(animation=show_animation)
+    path = rrt_star.planning(animation=True, update_gap=100)
 
     if path is None:
         print("Cannot find path")
