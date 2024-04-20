@@ -80,7 +80,7 @@ class RRT:
         self.node_list = []
         self.robot_radius = robot_radius
 
-    def planning(self, animation=True):
+    def planning(self, animation=True, update_gap=5):
         """
         rrt path planning
 
@@ -199,7 +199,7 @@ class RRT:
         plt.plot(self.start.x, self.start.y, "xr")
         plt.plot(self.end.x, self.end.y, "xr")
         plt.axis("equal")
-        plt.axis([-2, 15, -2, 15])
+        # plt.axis([-2, 15, -2, 15]) # this line is annoying!
         plt.grid(True)
         plt.pause(0.01)
 
