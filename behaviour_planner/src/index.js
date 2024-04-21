@@ -9,7 +9,7 @@ async function example() {
 
   // Create main working components here, e.g., publisher, subscriber, service, client, action
   // For example, a publisher sending a msg every 1 sec
-  const publisher = node.createPublisher('std_msgs/msg/String', 'foo_topic');
+  const publisher = node.createPublisher('std_msgs/msg/String', 'foo');
   let count = 0;
   const msg = rclnodejs.createMessageObject('std_msgs/msg/String');
   node.createTimer(1000, () => {
