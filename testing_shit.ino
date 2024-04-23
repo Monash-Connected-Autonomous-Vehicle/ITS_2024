@@ -81,8 +81,14 @@ float v2Prev = 0;
 PID_control pid[NUM_MOTORS];
 
 // define pwm 
+const int PWM_CHANNEL0 = 0;
 const int PWM_CHANNEL1 = 1; // ESP32 has 16 channels which can generate 16 independent waveforms
 const int PWM_CHANNEL2 = 2;
+const int PWN_CHANNEL3 = 3;
+const int PWM_CHANNEL2 = 4;
+const int PWN_CHANNEL3 = 5;
+const int PWM_CHANNEL2 = 6;
+const int PWN_CHANNEL3 = 7;
 const int PWM_FREQ = 500;  // Recall that Arduino Uno is ~490 Hz. Official ESP32 example uses 5,000Hz
 const int PWM_RESOLUTION = 8; 
 // The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
@@ -98,11 +104,23 @@ void setup() {
   Serial.begin(9600);
   ledcSetup(PWM_CHANNEL1, PWM_FREQ, PWM_RESOLUTION); // set up the pwm channel with pwm channel number, frequency and resolution
   ledcSetup(PWM_CHANNEL2, PWM_FREQ, PWM_RESOLUTION);
-  ledcAttachPin(in13, PWM_CHANNEL1); // attach pins to channel to generate pwm
+  ledcAttachPin(in13, PWM_CHANNEL0); // attach pins to channel to generate pwm
+  ledcAttachPin(in24, PWM_CHANNEL1);
   ledcAttachPin(in24, PWM_CHANNEL2);
+  ledcAttachPin(in24, PWM_CHANNEL3);
+  ledcAttachPin(in24, PWM_CHANNEL4);
+  ledcAttachPin(in24, PWM_CHANNEL5);
+  ledcAttachPin(in24, PWM_CHANNEL6);
+  ledcAttachPin(in24, PWM_CHANNEL7);
+  
+  ledcWrite(PWM_CHANNEL0, 0); // initialise by writing one to channel
   ledcWrite(PWM_CHANNEL1, 0); // initialise by writing one to channel
-  ledcWrite(PWM_CHANNEL2, 0); // initialise by writing one to channel
-
+  ledcWrite(PWM_CHANNEL2, 0);
+  ledcWrite(PWM_CHANNEL3, 0);
+  ledcWrite(PWM_CHANNEL4, 0);
+  ledcWrite(PWM_CHANNEL5, 0);
+  ledcWrite(PWM_CHANNEL6, 0);
+  ledcWrite(PWM_CHANNEL7, 0);
   // Set up PINS and PID Params
   for (int k = 0; k < NUM_MOTORS; k++) {
     pinMode(enca[k], INPUT);
