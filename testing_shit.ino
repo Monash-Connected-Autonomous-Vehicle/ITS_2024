@@ -169,10 +169,11 @@ void loop() {
 // MOTOR COMMUNICATION FUNCTIONS 
 // Set the power and direction of the Motor
 void setMotor(int dir, int pwmVal, int in1, int in2) {
-  ledcWrite(PWM_CHANNEL, pwmVal);
+  
   if(dir == 1){
-    digitalWrite(in1,HIGH);
-    digitalWrite(in2,LOW);
+    ledcWrite(PWM_CHANNEL1, pwmVal);
+    ledcWrite(PWM_CHANNEL2, pwmVal);
+
   }
   else if(dir == -1){
     digitalWrite(in1,LOW);
