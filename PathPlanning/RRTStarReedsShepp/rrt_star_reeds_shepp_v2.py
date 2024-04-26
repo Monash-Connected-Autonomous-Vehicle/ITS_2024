@@ -258,7 +258,7 @@ def main(max_iter=1000):
         play_area=[0, env.width // env.cell_size, 0, env.height // env.cell_size],
         curvature=0.15,
         connect_circle_dist=100)
-    path = rrt_star_reeds_shepp.planning(animation=False, update_gap=100, search_until_max_iter=True)
+    path = rrt_star_reeds_shepp.planning(animation=False, update_gap=100, search_until_max_iter=False)
 
     # Draw final path
     if path: # and show_animation:  # pragma: no cover
