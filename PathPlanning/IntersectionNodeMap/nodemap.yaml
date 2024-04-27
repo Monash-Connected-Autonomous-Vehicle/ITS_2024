@@ -1,0 +1,7 @@
+nodes:
+  - A1:
+    xpos: 0
+    ypos: 0
+  - A2:
+    xpos: 1
+    ypos: 1
