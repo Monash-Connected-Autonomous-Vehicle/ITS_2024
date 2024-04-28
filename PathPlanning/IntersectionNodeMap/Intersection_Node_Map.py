@@ -18,11 +18,13 @@ class IntersectionNode:
     
     name: Alias for the node to be referenced in yaml files
     xpos, ypos: coordinates of the node in the environment [m]
+    yaw: orientation of the node which (required for path planinng) [deg]
     leftNode, rightNode, aheadNode, uturnNode: Other node names which dictate the digraph structure
     """
     name: str = None
     xPos: float = 0
     yPos: float = 0
+    yaw: float = 0
     leftNode: str = None
     rightNode: str = None
     aheadNode: str = None
@@ -55,6 +57,7 @@ class NodeMap(ABC):
                 name=node["name"],
                 xPos=node["xpos"],
                 yPos=node["ypos"],
+                yaw=node["yaw"],
                 leftNode=node.get("left"),
                 rightNode=node.get("right"),
                 aheadNode=node.get("ahead"),
@@ -80,9 +83,9 @@ class NodeMap(ABC):
 
     def path_from_node_labels(self, src: str, tgt: str) -> list[tuple[float]]:  
         """
-        Shortest path between nodes. Returns a list of (x,y) tuples
+        Shortest path between nodes. Returns a list of (x,y, yaw) tuples
         """
-        return [(n.xPos, n.yPos) for n in nx.dijkstra_path(self.DG, self.nodes[src], self.nodes[tgt])]
+        return [(n.xPos, n.yPos, n.yaw) for n in nx.dijkstra_path(self.DG, self.nodes[src], self.nodes[tgt])]
 
     def displayINM(self,env):
         # Display INM over environment
