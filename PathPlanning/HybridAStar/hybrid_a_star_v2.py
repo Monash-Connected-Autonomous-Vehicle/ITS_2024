@@ -392,7 +392,7 @@ class NodePathFinder(NodeMap):
     """
 
     def __init__(self, env: RasterEnv):
-        super.__init__()
+        super().__init__()
         self.env = env
 
     def node_based_planning(self, start: str, goal: str) -> Path:
@@ -407,13 +407,41 @@ class NodePathFinder(NodeMap):
                         s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
             
         return path
+    
+
+def demo_nodes():
+    env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
+    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+
+    (ox, oy) = env.getObstacleXYArrays()
+
+    npf = NodePathFinder(env=env)
+    npf.from_yaml('PathPlanning/IntersectionNodeMap/nodemap.yaml')
+
+    path = npf.node_based_planning('A7', 'A4')
+
+    x = path.x_list
+    y = path.y_list
+    yaw = path.yaw_list
+
+    if show_animation:
+        for i_x, i_y, i_yaw in zip(x, y, yaw):
+            plt.cla()
+            plt.plot(ox, oy, ".k")
+            plt.plot(x, y, "-r", label="Hybrid A* path")
+            plt.grid(True)
+            plt.axis("equal")
+            plot_car(i_x, i_y, i_yaw)
+            plt.pause(1e-7)
+
+    print(__file__ + " done!!")
 
 
 
 def main():
     print("Start Hybrid A* planning")
     env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
-    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+    env.getTrackFromImage('PathPlanning/MRNEnv/mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
 
     (ox, oy) = env.getObstacleXYArrays()
 
@@ -452,7 +480,7 @@ def main():
     print(__file__ + " done!!")
 
 if __name__ == '__main__':
-    main()
+    demo_nodes()
 
 
 '''
