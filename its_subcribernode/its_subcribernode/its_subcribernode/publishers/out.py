@@ -37,16 +37,24 @@ class CrossIntersectionPublisher(Node):
         # Collision detection
         if collision_detected:
             if intersection_leader:
-                # Send AskPermission message to other vehicles
+                # Publish AskPermission message to other vehicles
 
-                # Receive AskPermission acknowledgements from other vehicles
+                # Subscribe to AskPermission acknowledgements from other vehicles
 
                 # Cross intersection
                 pass
             else:
                 if road_leader:
+                    # Subscribe to AskPermission
+
+                    # Publish AskPermission acknowledgement
+
+                    # Subscribe to AllowPass (becomes intersection leader)
+
+                    # Publish AllowPass acknowledgement
                     pass
                 else:
+                    # Subscribe to HDOV
                     pass
             # Move to edge of intersection and stop
             pass
