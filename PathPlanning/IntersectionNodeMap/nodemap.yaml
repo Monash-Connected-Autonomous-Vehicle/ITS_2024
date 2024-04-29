@@ -1,12 +1,75 @@
 nodes:
   - name: 'A1'
-    xpos: 0
-    ypos: 0
+    xpos: 2.0
+    ypos: 2.2
     yaw: 0
-    ahead: 'A2'
+    ahead: 'A4'
+    left: 'A2'
+    right: 'A6'
+    uturn: 'A8'
 
   - name: 'A2'
-    xpos: 1
-    ypos: 1
+    xpos: 2.3
+    ypos: 2.5
     yaw: 90
-    uturn: 'A1'
+    ahead: ''
+    left: ''
+    right: ''
+    uturn: ''
+
+  - name: 'A3'
+    xpos: 2.7
+    ypos: 2.5
+    yaw: -90
+    ahead: 'A6'
+    left: 'A4'
+    right: 'A8'
+    uturn: 'A2'
+
+  - name: 'A4'
+    xpos: 3.0
+    ypos: 2.2
+    yaw: 0
+    ahead: ''
+    left: ''
+    right: ''
+    uturn: ''
+
+  - name: 'A5'
+    xpos: 3.0
+    ypos: 1.8
+    yaw: -180
+    ahead: 'A8'
+    left: 'A6'
+    right: 'A2'
+    uturn: 'A4'
+
+  - name: 'A6'
+    xpos: 2.7
+    ypos: 1.5
+    yaw: -90
+    ahead: ''
+    left: ''
+    right: ''
+    uturn: ''
+
+  - name: 'A7'
+    xpos: 2.3
+    ypos: 2.1.5
+    yaw: 90
+    ahead: 'A2'
+    left: 'A8'
+    right: 'A4'
+    uturn: 'A6'
+
+  - name: 'A8'
+    xpos: 2.0
+    ypos: 1.8
+    yaw: -180
+    ahead: ''
+    left: ''
+    right: ''
+    uturn: ''
+
+  
+
