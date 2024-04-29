@@ -24,9 +24,9 @@ class Env(ABC):
     width: width of the track in meters
     height: height of the track in meters
     """
-    width = 1
-    height = 1
-    track = None
+    width: float = 1
+    height: float = 1
+    track = None  # I forgot what this was supposed to be?
 
     @abstractmethod
     def getObstacleXYArrays(self) -> tuple[list[int], list[int]]:
@@ -39,7 +39,7 @@ class RasterEnv(Env):
     An environment which stores the track internally as a rasterised grid,
     i.e. a 2D array of binary values where obstacles are (True) 
     """
-    cell_size = 0.01
+    cell_size: float = 0.01
 
     def __down_sample(self, img: Image.Image, pct: float) -> Image.Image:
         """

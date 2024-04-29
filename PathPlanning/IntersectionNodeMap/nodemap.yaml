@@ -1,0 +1,12 @@
+nodes:
+  - name: 'A1'
+    xpos: 0
+    ypos: 0
+    yaw: 0
+    ahead: 'A2'
+
+  - name: 'A2'
+    xpos: 1
+    ypos: 1
+    yaw: 90
+    uturn: 'A1'

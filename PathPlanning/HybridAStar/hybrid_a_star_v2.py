@@ -19,6 +19,7 @@ from dynamic_programming_heuristic import calc_distance_heuristic
 from ReedsSheppPath import reeds_shepp_path_planning as rs
 from car import move, check_car_collision, MAX_STEER, WB, plot_car, BUBBLE_R
 from MRNEnv.environment import RasterEnv
+from IntersectionNodeMap.Intersection_Node_Map import NodeMap
 
 XY_GRID_RESOLUTION = 2.0  # [m]
 YAW_GRID_RESOLUTION = np.deg2rad(15.0)  # [rad]
@@ -60,6 +61,13 @@ class Path:
         self.yaw_list = yaw_list
         self.direction_list = direction_list
         self.cost = cost
+
+    def __iadd__(self, other):  # overload the += operator for easy concatenation
+        self.x_list += other.x_list
+        self.y_list += other.y_list
+        self.yaw_list += other.yaw_list
+        self.direction_list += other.direction_list
+        self.cost += other.cost
 
 
 class Config:
@@ -377,6 +385,29 @@ def calc_index(node, c):
 
     return ind
 
+class NodePathFinder(NodeMap):
+    """
+    A simple wrapper class which extends the path finding algorithm to work using intersection nodes 
+    as intermediate waypoints.
+    """
+
+    def __init__(self, env: RasterEnv):
+        super.__init__()
+        self.env = env
+
+    def node_based_planning(self, start: str, goal: str) -> Path:
+        waypoints = self.path_from_node_labels(start, goal)
+        path = None
+        (ox, oy) = self.env.getObstacleXYArrays()
+
+        for wp in waypoints:
+            s = [wp[0] // self.env.cell_size, wp[1] // self.env.cell_size, np.deg2rad(wp[2])]
+            g = [wp[0] // self.env.cell_size, wp[1] // self.env.cell_size, np.deg2rad(wp[2])]
+            path += hybrid_a_star_planning(
+                        s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+            
+        return path
+
 
 
 def main():
@@ -422,6 +453,8 @@ def main():
 
 if __name__ == '__main__':
     main()
+
+
 '''
 def main_():
     print("Start Hybrid A* planning")
