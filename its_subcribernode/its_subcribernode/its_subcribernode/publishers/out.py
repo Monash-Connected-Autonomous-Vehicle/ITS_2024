@@ -27,8 +27,42 @@ class CrossIntersectionPublisher(Node):
         """
         Outputs behaviour planner command to path planner (STOP or GO)
         """
+        # Scenario variables
+        collision_detected = True
+        intersection_leader = True
+        road_leader = False
+
+        self.stop()
+
+        # Collision detection
+        if collision_detected:
+            if intersection_leader:
+                # Send AskPermission message to other vehicles
+
+                # Receive AskPermission acknowledgements from other vehicles
+
+                # Cross intersection
+                pass
+            else:
+                if road_leader:
+                    pass
+                else:
+                    pass
+            # Move to edge of intersection and stop
+            pass
+        else:
+            # Cross intersection
+            self.go()
+
+    def go(self):
         msg = String()
         msg.data = 'GO'
+        self.publisher_.publish(msg)
+        self.get_logger().info('Publishing: {msg}'.format(msg=msg.data))
+
+    def stop(self):
+        msg = String()
+        msg.data = 'STOP'
         self.publisher_.publish(msg)
         self.get_logger().info('Publishing: {msg}'.format(msg=msg.data))
 
