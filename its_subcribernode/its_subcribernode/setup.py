@@ -24,6 +24,7 @@ setup(
                 'listener = its_subcribernode.subscriber_member_function:main',
                 'modified_publisher = its_subcribernode.modifiedpublisherfunction:main',
                 'modified_subscriber = its_subcribernode.modifiedsubscriberfunction:main',
-                'logical_loop = its_subcribernode.logicalloop:main_loop'
+                'logical_loop = its_subcribernode.logicalloop:main_loop',
+                'out = its_subcribernode.publishers.out:main',
                 ],},
 )
