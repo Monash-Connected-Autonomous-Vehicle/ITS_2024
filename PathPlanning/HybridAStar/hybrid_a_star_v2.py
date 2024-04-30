@@ -400,25 +400,32 @@ class NodePathFinder(NodeMap):
         path = None
         (ox, oy) = self.env.getObstacleXYArrays()
 
-        for wp in waypoints:
-            s = [wp[0] // self.env.cell_size, wp[1] // self.env.cell_size, np.deg2rad(wp[2])]
+        last = waypoints[0]  # initial node
+        for wp in waypoints[1:]:  
+            s = [last[0] // self.env.cell_size, last[1] // self.env.cell_size, np.deg2rad(last[2])]
             g = [wp[0] // self.env.cell_size, wp[1] // self.env.cell_size, np.deg2rad(wp[2])]
-            path += hybrid_a_star_planning(
+            if path is None:  # first iteration
+                path = hybrid_a_star_planning(
                         s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+            else:
+                path += hybrid_a_star_planning(
+                        s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+            
+            last = wp   # update previous node
             
         return path
     
 
 def demo_nodes():
     env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
-    env.getTrackFromImage('PathPlanning\MRNEnv\mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+    env.getTrackFromImage("PathPlanning/MRNEnv/mrn_bin.png", ds_pct = (1/6)*100, target_height=4)
 
     (ox, oy) = env.getObstacleXYArrays()
 
     npf = NodePathFinder(env=env)
-    npf.from_yaml('PathPlanning/IntersectionNodeMap/nodemap.yaml')
+    npf.from_yaml("PathPlanning/IntersectionNodeMap/nodemap.yaml")
 
-    path = npf.node_based_planning('A7', 'A4')
+    path = npf.node_based_planning('A7', 'A8')
 
     x = path.x_list
     y = path.y_list
@@ -440,8 +447,8 @@ def demo_nodes():
 
 def main():
     print("Start Hybrid A* planning")
-    env = RasterEnv()  # PathPlanning\MRNEnv\mrn_bin.png
-    env.getTrackFromImage('PathPlanning/MRNEnv/mrn_bin.png', ds_pct = (1/6)*100, target_height=4)
+    env = RasterEnv()  
+    env.getTrackFromImage("PathPlanning/MRNEnv/mrn_bin.png", ds_pct = (1/6)*100, target_height=4)
 
     (ox, oy) = env.getObstacleXYArrays()
 
