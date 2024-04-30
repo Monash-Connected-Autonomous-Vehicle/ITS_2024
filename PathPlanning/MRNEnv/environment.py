@@ -105,8 +105,8 @@ class RasterEnv(Env):
 
         for x in it:
             if x:
-                ox.append(it.multi_index[1])  # these are intentionally back to front
-                oy.append(it.multi_index[0])
+                ox.append(it.multi_index[1] * self.cell_size)  # these are intentionally back to front
+                oy.append(it.multi_index[0] * self.cell_size)
 
         return (ox, oy)
 

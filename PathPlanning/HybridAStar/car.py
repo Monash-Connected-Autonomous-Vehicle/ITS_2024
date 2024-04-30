@@ -8,7 +8,7 @@ author: Zheng Zh (@Zhengzh)
 
 import sys
 import pathlib
-root_dir = pathlib.Path(__file__).parent.parent.parent
+root_dir = pathlib.Path(__file__).parent.parent
 sys.path.append(str(root_dir))
 
 from math import cos, sin, tan, pi
@@ -18,11 +18,12 @@ import numpy as np
 
 from utils.angle import rot_mat_2d
 
-WB = 3.0  # rear to front wheel
-W = 2.0  # width of car
-LF = 3.3  # distance from rear to vehicle front end
-LB = 1.0  # distance from rear to vehicle back end
-MAX_STEER = 0.6  # [rad] maximum steering angle
+WB = 0.2  # rear to front wheel
+W = 0.15  # width of car
+LF = 0.2  # distance from rear to vehicle front end
+LB = 0.0  # distance from rear to vehicle back end
+MIN_TURN_R = 0.25  # the minimum turning radius
+MAX_STEER = 0.8  # [rad] maximum steering angle
 
 BUBBLE_DIST = (LF - LB) / 2.0  # distance from rear to center of vehicle.
 BUBBLE_R = np.hypot((LF + LB) / 2.0, W / 2.0)  # bubble radius
@@ -84,8 +85,8 @@ def plot_car(x, y, yaw):
         car_outline_x.append(converted_xy[0]+x)
         car_outline_y.append(converted_xy[1]+y)
 
-    arrow_x, arrow_y, arrow_yaw = c * 1.5 + x, s * 1.5 + y, yaw
-    plot_arrow(arrow_x, arrow_y, arrow_yaw)
+    arrow_x, arrow_y, arrow_yaw = x, y, yaw
+    plot_arrow(arrow_x, arrow_y, arrow_yaw, length=WB, width=W)
 
     plt.plot(car_outline_x, car_outline_y, car_color)
 

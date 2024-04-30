@@ -21,9 +21,9 @@ from car import move, check_car_collision, MAX_STEER, WB, plot_car, BUBBLE_R
 from MRNEnv.environment import RasterEnv
 from IntersectionNodeMap.Intersection_Node_Map import NodeMap
 
-XY_GRID_RESOLUTION = 2.0  # [m]
-YAW_GRID_RESOLUTION = np.deg2rad(15.0)  # [rad]
-MOTION_RESOLUTION = 0.1  # [m] path interpolate resolution
+XY_GRID_RESOLUTION = 1.0  # [m]
+YAW_GRID_RESOLUTION = np.deg2rad(5.0)  # [rad]
+MOTION_RESOLUTION = 0.02  # [m] path interpolate resolution
 N_STEER = 20  # number of steer command
 
 SB_COST = 100.0  # switch back penalty cost
@@ -404,14 +404,14 @@ class NodePathFinder(NodeMap):
 
         last = waypoints[0]  # initial node
         for wp in waypoints[1:]:  
-            s = [last[0] // self.env.cell_size, last[1] // self.env.cell_size, np.deg2rad(last[2])]
-            g = [wp[0] // self.env.cell_size, wp[1] // self.env.cell_size, np.deg2rad(wp[2])]
+            s = [last[0], last[1], np.deg2rad(last[2])]
+            g = [wp[0], wp[1], np.deg2rad(wp[2])]
             if path is None:  # first iteration
                 path = hybrid_a_star_planning(
-                        s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+                        s, g, ox, oy, self.env.cell_size, YAW_GRID_RESOLUTION)
             else:
                 path += hybrid_a_star_planning(
-                        s, g, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+                        s, g, ox, oy, self.env.cell_size, YAW_GRID_RESOLUTION)
             
             last = wp   # update previous node
             
@@ -427,7 +427,7 @@ def demo_nodes():
     npf = NodePathFinder(env=env)
     npf.from_yaml("PathPlanning/IntersectionNodeMap/nodemap.yaml")
 
-    path = npf.node_based_planning('C6', 'C5')
+    path = npf.node_based_planning('C1', 'A3')
 
     x = path.x_list
     y = path.y_list
@@ -455,8 +455,8 @@ def main():
     (ox, oy) = env.getObstacleXYArrays()
 
     # Set Initial parameters
-    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(90.0)]
-    goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
+    start = [0.3, 0.4, np.deg2rad(90.0)]
+    goal = [4.5, 2.2, np.deg2rad(0)]
 
     print("start : ", start)
     print("goal : ", goal)
@@ -468,9 +468,11 @@ def main():
 
         plt.grid(True)
         plt.axis("equal")
+        plot_car(start[0], start[1], start[2])
+        plt.show()
 
     path = hybrid_a_star_planning(
-        start, goal, ox, oy, XY_GRID_RESOLUTION, YAW_GRID_RESOLUTION)
+        start, goal, ox, oy, env.cell_size, YAW_GRID_RESOLUTION)
 
     x = path.x_list
     y = path.y_list
