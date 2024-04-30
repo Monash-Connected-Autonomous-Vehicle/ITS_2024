@@ -69,6 +69,8 @@ class Path:
         self.direction_list += other.direction_list
         self.cost += other.cost
 
+        return self
+
 
 class Config:
 
@@ -425,7 +427,7 @@ def demo_nodes():
     npf = NodePathFinder(env=env)
     npf.from_yaml("PathPlanning/IntersectionNodeMap/nodemap.yaml")
 
-    path = npf.node_based_planning('A7', 'A8')
+    path = npf.node_based_planning('C6', 'C5')
 
     x = path.x_list
     y = path.y_list

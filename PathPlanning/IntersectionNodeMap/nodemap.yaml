@@ -12,10 +12,7 @@ nodes:
     xpos: 2.3
     ypos: 2.5
     yaw: 90
-    ahead: ''
-    left: ''
-    right: ''
-    uturn: ''
+    ahead: 'B5'
 
   - name: 'A3'
     xpos: 2.7
@@ -30,10 +27,7 @@ nodes:
     xpos: 3.0
     ypos: 2.2
     yaw: 0
-    ahead: ''
-    left: ''
-    right: ''
-    uturn: ''
+    ahead: 'D1'
 
   - name: 'A5'
     xpos: 3.0
@@ -48,14 +42,11 @@ nodes:
     xpos: 2.7
     ypos: 1.5
     yaw: -90
-    ahead: ''
-    left: ''
-    right: ''
-    uturn: ''
+    ahead: 'C3'
 
   - name: 'A7'
     xpos: 2.3
-    ypos: 2.1.5
+    ypos: 1.5
     yaw: 90
     ahead: 'A2'
     left: 'A8'
@@ -66,10 +57,172 @@ nodes:
     xpos: 2.0
     ypos: 1.8
     yaw: -180
-    ahead: ''
-    left: ''
-    right: ''
-    uturn: ''
+    ahead: 'E4'
 
-  
+  - name: 'B1'
+    xpos: 2.0
+    ypos: 3.7
+    yaw: 0
+    ahead: 'B2'
+    right: 'B4'
+    uturn: 'B6'
+
+  - name: 'B2'
+    xpos: 3.0
+    ypos: 3.7
+    yaw: 0
+    ahead: 'D3'
+
+  - name: 'B3'
+    xpos: 3.0
+    ypos: 3.3
+    yaw: -180
+    ahead: 'B6'
+    left: 'B4'
+    uturn: 'B2'
+
+  - name: 'B4'
+    xpos: 2.7
+    ypos: 3.0
+    yaw: -90
+    ahead: 'A3'
+
+  - name: 'B5'
+    xpos: 2.3
+    ypos: 3.0
+    yaw: 90
+    left: 'B6'
+    right: 'B2'
+    uturn: 'B4'
+
+  - name: 'B6'
+    xpos: 2.0
+    ypos: 3.3
+    yaw: -180
+    ahead: 'E2'
+
+  - name: 'C1'
+    xpos: 2.0
+    ypos: 0.7
+    yaw: 0
+    ahead: 'C4'
+    left: 'C2'
+    uturn: 'C6'
+
+  - name: 'C2'
+    xpos: 2.3
+    ypos: 1.0
+    yaw: 90
+    ahead: 'A7'
+
+  - name: 'C3'
+    xpos: 2.7
+    ypos: 1.0
+    yaw: -90
+    left: 'C4'
+    right: 'C6'
+    uturn: 'C2'
+
+  - name: 'C4'
+    xpos: 3.0
+    ypos: 0.7
+    yaw: 0
+    ahead: 'D5'
+
+  - name: 'C5'
+    xpos: 3.0
+    ypos: 0.3
+    yaw: -180
+    ahead: 'C6'
+    right: 'C2'
+    uturn: 'C4'
+
+  - name: 'C6'
+    xpos: 2.0
+    ypos: 0.3
+    yaw: -180
+    ahead: 'E6'
+
+  - name: 'D1'
+    xpos: 4.0
+    ypos: 2.2
+    yaw: 0
+    left: 'D2'
+    right: 'D4'
+    uturn: 'D6'
+
+  - name: 'D2'
+    xpos: 4.3
+    ypos: 2.5
+    yaw: 90
+    ahead: 'B3'
+
+  - name: 'D3'
+    xpos: 4.7
+    ypos: 2.5
+    yaw: -90
+    ahead: 'D4'
+    right: 'D6'
+    uturn: 'D2'
+
+  - name: 'D4'
+    xpos: 4.7
+    ypos: 1.5
+    yaw: -90
+    ahead: 'C5'
+
+  - name: 'D5'
+    xpos: 4.3
+    ypos: 1.5
+    yaw: 90
+    ahead: 'D2'
+    left: 'D6'
+
+  - name: 'D6'
+    xpos: 4.0
+    ypos: 1.8
+    yaw: -180
+    ahead: 'A5'
+
+  - name: 'E1'
+    xpos: 0.3
+    ypos: 2.5
+    yaw: 90
+    ahead: 'B1'
+
+  - name: 'E2'
+    xpos: 0.7
+    ypos: 2.5
+    yaw: -90
+    ahead: 'E5'
+    left: 'E3'
+    uturn: 'E1'
+
+  - name: 'E3'
+    xpos: 1.0
+    ypos: 2.2
+    yaw: 0
+    ahead: 'A1'
+
+  - name: 'E4'
+    xpos: 1.0
+    ypos: 1.8
+    yaw: -180
+    left: 'E5'
+    right: 'E1'
+    uturn: 'E3'
+
+  - name: 'E5'
+    xpos: 0.7
+    ypos: 1.5
+    yaw: -90
+    ahead: 'C1'
+
+  - name: 'E6'
+    xpos: 0.3
+    ypos: 1.5
+    yaw: 90
+    ahead: 'E1'
+    right: 'E3'
+    uturn: 'E5'
 
