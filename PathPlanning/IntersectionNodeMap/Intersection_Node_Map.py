@@ -94,8 +94,8 @@ class NodeMap(ABC):
 
 def main():
     nm = NodeMap()
-    nm.from_yaml('PathPlanning/IntersectionNodeMap/nodemap.yaml')
-    print(nm.path_from_node_labels('A1', 'A2'))
+    nm.from_yaml('PathPlanning/IntersectionNodeMap/nodemaptdebug.yaml')
+    print(nm.path_from_node_labels('C4', 'D5'))
 
 if __name__ == '__main__':
     main()

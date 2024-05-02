@@ -18,12 +18,18 @@ import numpy as np
 
 from utils.angle import rot_mat_2d
 
-WB = 0.2  # rear to front wheel
-W = 0.15  # width of car
-LF = 0.2  # distance from rear to vehicle front end
-LB = 0.0  # distance from rear to vehicle back end
-MIN_TURN_R = 0.25  # the minimum turning radius
-MAX_STEER = 0.8  # [rad] maximum steering angle
+# Real:Plot scale = 1m:1 unit = 100cm:1 unit
+# rear wheel to front wheel end to end: 21.1cm -> 0.211 units
+# end of rear wheel to front: 22.6cm -> 0.226 units
+# end of rear wheel to end: 9mm -> 0.09 units
+# wheel to wheel width: 19.4cm -> 0.194 units
+
+WB = 0.211  # rear to front wheel
+W = 0.194  # width of car
+LF = 0.226  # distance from rear to vehicle front end
+LB = 0.09  # distance from rear to vehicle back end
+MIN_TURN_R = 0.09  # the minimum turning radius
+MAX_STEER = 0.9 # [rad] maximum steering angle - originally 0.9
 
 BUBBLE_DIST = (LF - LB) / 2.0  # distance from rear to center of vehicle.
 BUBBLE_R = np.hypot((LF + LB) / 2.0, W / 2.0)  # bubble radius

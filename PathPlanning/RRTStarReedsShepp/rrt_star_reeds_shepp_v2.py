@@ -242,10 +242,10 @@ def main(max_iter=1000):
         # [x,y,size(radius)]
 
     # Set Initial parameters
-    # start = [0.0, 0.0, np.deg2rad(0.0)]
-    # goal = [6.0, 7.0, np.deg2rad(90.0)]
-    start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(0)]
-    goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
+    start = [0.7, 1.5, np.deg2rad(-90.0)]
+    goal = [2.0, 0.7, np.deg2rad(0.0)]
+    # start = [0.4 // env.cell_size, 0.4 // env.cell_size, np.deg2rad(0)]
+    # goal = [4.5 // env.cell_size, 2 // env.cell_size, np.deg2rad(0)]
 
     rrt_star_reeds_shepp = RRTStarReedsShepp(
         start=start,

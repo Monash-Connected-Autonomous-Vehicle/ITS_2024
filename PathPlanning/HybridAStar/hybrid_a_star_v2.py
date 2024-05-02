@@ -399,6 +399,7 @@ class NodePathFinder(NodeMap):
 
     def node_based_planning(self, start: str, goal: str) -> Path:
         waypoints = self.path_from_node_labels(start, goal)
+        print(waypoints)
         path = None
         (ox, oy) = self.env.getObstacleXYArrays()
 
@@ -425,10 +426,12 @@ def demo_nodes():
     (ox, oy) = env.getObstacleXYArrays()
 
     npf = NodePathFinder(env=env)
-    npf.from_yaml("PathPlanning/IntersectionNodeMap/nodemap.yaml")
-
-    path = npf.node_based_planning('C1', 'A3')
-
+    npf.from_yaml("PathPlanning/IntersectionNodeMap/nodemaptdebug.yaml")
+    plt.plot(ox, oy, ".k")
+    plot_car(3.0, 0.7, 0)
+    plt.show()
+    path = npf.node_based_planning('C4', 'D5')
+    
     x = path.x_list
     y = path.y_list
     yaw = path.yaw_list
@@ -442,7 +445,11 @@ def demo_nodes():
             plt.axis("equal")
             plot_car(i_x, i_y, i_yaw)
             plt.pause(1e-7)
-
+    plt.plot(ox, oy, ".k")
+    plt.plot(x, y, "-r", label="Hybrid A* path")
+    plt.grid(True)
+    plt.axis("equal")
+    plt.show()
     print(__file__ + " done!!")
 
 
@@ -455,8 +462,8 @@ def main():
     (ox, oy) = env.getObstacleXYArrays()
 
     # Set Initial parameters
-    start = [0.3, 0.4, np.deg2rad(90.0)]
-    goal = [4.5, 2.2, np.deg2rad(0)]
+    start = [3, 0.7, np.deg2rad(90.0)]
+    goal = [4.3, 1, np.deg2rad(0)]
 
     print("start : ", start)
     print("goal : ", goal)
