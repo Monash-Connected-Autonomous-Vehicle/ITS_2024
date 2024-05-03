@@ -94,6 +94,19 @@ const int PWM_RESOLUTION = 8;
 // The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1);
 
+void getStr2F(String input, float &wl_target, float &wr_target) {
+  int index = input.indexOf("[") + 1; // Find the starting index of the values
+  int endIndex = input.indexOf("]"); // Find the ending index of the values
+
+  String valuesStr = input.substring(index, endIndex); // Extract the values between '[' and ']'
+  valuesStr.replace(" ", ""); // Remove any spaces
+  commaIndex = valuesStr.indexOf(",");
+  wl_goal = valuesStr.substring(0, commaIndex).toFloat();
+  valuesStr = valuesStr.substring(commaIndex + 1);
+  
+  wr_goal = valuesStr.toFloat(); // The remaining value is the last one
+}
+
 
 ////////////////////////////////////
 ////////// Define SETUP ////////////
