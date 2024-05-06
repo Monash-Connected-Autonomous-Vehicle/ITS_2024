@@ -50,11 +50,15 @@ class PID_control {
 #define ENC_COUNT_REV 330.0
 
 // Define the motor driver and encoder pins 
-// 0:
-const int enca[]     = {36, 39, 34, 35};     // Define the input pin for Encoder A (pins needs interrupt capabilities) 
-const int encb[]     = {23, 22, 1, 3};     // Define the input pin for Encoder B (pins needs interrupt capabilities) 
-const int in13[]     = {32, 33, 25, 26};     // Define the direction pin for Motor Driver
-const int in24[]     = {27, 14, 12, 13};     // Define the direction pin for Motor Driver
+// 0: front left
+// 1: back left
+// 2: front right
+// 3: back right 
+
+const int in13[]     = {5, 2, 13, 27};     // Define the direction pin for Motor Driver
+const int in24[]     = {4, 15, 14, 26};     // Define the direction pin for Motor Driver
+const int enca[]     = {18,19,25,33};
+const int encb[]     = {22,23,32,35};
 
 
 // Global Variables
@@ -78,7 +82,7 @@ PID_control pid[NUM_MOTORS];
 float wl_goal = 0;
 float wr_goal = 0;
 
-// ********************************************* SETUP PWM CHANNELS ********************************************* //
+// ********************************************* SETUP PWM CHANNELS ****************************************************** //
 // *********************************************************************************************************************** //
 // *********************************************************************************************************************** //
 
