@@ -56,7 +56,7 @@ class PID_control {
 // Define the number of motors
 #define NUM_MOTORS 4
 // Define the number of counts of encoder for a full revolution.
-#define ENC_COUNT_REV 330
+#define ENC_COUNT_REV 330.0
 
 // Define the PINS
 const int enca[]     = {36, 39, 34, 35};     // Define the input pin for Encoder A (pins needs interrupt capabilities) 
@@ -81,14 +81,8 @@ float v2Prev = 0;
 PID_control pid[NUM_MOTORS];
 
 // define pwm 
-const int PWM_CHANNEL0 = 0;
-const int PWM_CHANNEL1 = 1; // ESP32 has 16 channels which can generate 16 independent waveforms
-const int PWM_CHANNEL2 = 2;
-const int PWN_CHANNEL3 = 3;
-const int PWM_CHANNEL2 = 4;
-const int PWN_CHANNEL3 = 5;
-const int PWM_CHANNEL2 = 6;
-const int PWN_CHANNEL3 = 7;
+const int PWM_CHANNELS[NUM_MOTORS] = {0,1,2,3} // 2 channels each side (1 for forward, 1 for backward)
+
 const int PWM_FREQ = 500;  // Recall that Arduino Uno is ~490 Hz. Official ESP32 example uses 5,000Hz
 const int PWM_RESOLUTION = 8; 
 // The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
@@ -175,8 +169,8 @@ void loop() {
     }
   }
   // Convert count/s to RPM
-  float v1 = velocity1/600.0*60.0;
-  float v2 = velocity2/600.0*60.0;
+  float v1 = velocity1/ENC_COUNT_REV*60.0;
+  float v2 = velocity2/ENC_COUNT_REV*60.0;
 
   // Low-pass filter (25 Hz cutoff)
   v1Filt = 0.854*v1Filt + 0.0728*v1 + 0.0728*v1Prev;
@@ -207,6 +201,8 @@ void setMotor(int dir, int pwmVal, int in1, int in2) {
 
   }
   else if(dir == -1){
+    ledcWrite(PWM_CHANNEL1, pwmVal);
+    ledcWrite(PWM_CHANNEL2, pwmVal);
     digitalWrite(in1,LOW);
     digitalWrite(in2,HIGH);
   }
