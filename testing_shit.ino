@@ -1,8 +1,8 @@
-#include <util/atomic.h> // ??
+#include <util/atomic.h> 
 
-////////////////////////////////////
-// Establish the PID control class//
-////////////////////////////////////
+// ********************************************* PID CLASS ********************************************* //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 class PID_control {
   private:
     float kp, kd, ki, umax; // Parameters
@@ -40,9 +40,9 @@ class PID_control {
 };
 
 
-////////////////////////////////////
-// Define the Global Variables//////
-////////////////////////////////////
+// ********************************************* GLOBAL VARIABLES ******************************************************** //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 
 // Define the number of motors
 #define NUM_MOTORS 4
@@ -71,13 +71,19 @@ float v2Prev = 0;
 //Define PID_control class objects
 PID_control pid[NUM_MOTORS];
 
-// define pwm 
-const int PWM_CHANNELS[NUM_MOTORS] = {0,1,2,3} // 2 channels each side (1 for forward, 1 for backward)
+// ********************************************* SETUP PWM CHANNELS ********************************************* //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 
-const int PWM_FREQ = 500;  // Recall that Arduino Uno is ~490 Hz. Official ESP32 example uses 5,000Hz
+const int PWM_CHANNELS[NUM_MOTORS] = {0,1,2,3} 
+const int PWM_FREQ = 500;  
 const int PWM_RESOLUTION = 8; 
-// The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
 const int MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1);
+
+
+// ********************************************* GET TARGET SPEED FROM RASPI ********************************************* //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 
 void getStr2F(String input, float &wl_target, float &wr_target) {
   int index = input.indexOf("[") + 1; // Find the starting index of the values
@@ -93,9 +99,9 @@ void getStr2F(String input, float &wl_target, float &wr_target) {
 }
 
 
-////////////////////////////////////
-////////// Define SETUP ////////////
-////////////////////////////////////
+// ********************************************* SETUP FUNCTION ********************************************************** //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 
 void setup() {
   // put your setup code here, to run once:
@@ -108,15 +114,15 @@ void setup() {
   }
 
   // left side
-  ledcAttachPin(in13[0],PWM_CHANNEL[1]
-  ledcAttachPin(in13[1],PWM_CHANNEL[1]
-  ledcAttachPin(in24[0],PWM_CHANNEL[0]
-  ledcAttachPin(in24[1],PWM_CHANNEL[0]
+  ledcAttachPin(in13[0],PWM_CHANNEL[1])
+  ledcAttachPin(in13[1],PWM_CHANNEL[1])
+  ledcAttachPin(in24[0],PWM_CHANNEL[0])
+  ledcAttachPin(in24[1],PWM_CHANNEL[0])
   // right side 
-  ledcAttachPin(in13[2],PWM_CHANNEL[3]
-  ledcAttachPin(in13[3],PWM_CHANNEL[3]
-  ledcAttachPin(in24[2],PWM_CHANNEL[2]
-  ledcAttachPin(in24[3],PWM_CHANNEL[2]
+  ledcAttachPin(in13[2],PWM_CHANNEL[3])
+  ledcAttachPin(in13[3],PWM_CHANNEL[3])
+  ledcAttachPin(in24[2],PWM_CHANNEL[2])
+  ledcAttachPin(in24[3],PWM_CHANNEL[2])
 
   // Set up PINS and PID Params
   for (int k = 0; k < NUM_MOTORS; k++) {
@@ -130,9 +136,9 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(enca[3]), readEncoder<3>, RISING);
 }
 
-////////////////////////////////////
-////////////// LOOP ////////////////
-////////////////////////////////////
+// ********************************************* LOOP FUNCTION ********************************************* //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 
 void loop() {
   // set target position
@@ -177,10 +183,10 @@ void loop() {
 }
 
 
-// MOTOR COMMUNICATION FUNCTIONS 
-// Set the power and direction of the Motor
+// ********************************************* MOTOR CONTROLLER FUNCTION *********************************************** //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 void setMotor(int dir, int pwmVal) {
-  
   if(dir == 1){
     ledcWrite(PWM_CHANNEL[1], pwmVal);
     ledcWrite(PWM_CHANNEL[3], pwmVal);
@@ -201,7 +207,9 @@ void setMotor(int dir, int pwmVal) {
   }  
 }
 
-// Read Encoder Module for Motor i wher i = 0,1,...,N motor
+// ********************************************* READ ENCODER FUNCTION *************************************************** //
+// *********************************************************************************************************************** //
+// *********************************************************************************************************************** //
 template <int j>
 void readEncoder() {
   int b = digitalRead(encb[j]);
