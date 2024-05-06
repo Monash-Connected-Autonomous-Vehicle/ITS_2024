@@ -49,11 +49,13 @@ class PID_control {
 // Define the number of counts of encoder for a full revolution.
 #define ENC_COUNT_REV 330.0
 
-// Define the PINS
+// Define the motor driver and encoder pins 
+// 0:
 const int enca[]     = {36, 39, 34, 35};     // Define the input pin for Encoder A (pins needs interrupt capabilities) 
 const int encb[]     = {23, 22, 1, 3};     // Define the input pin for Encoder B (pins needs interrupt capabilities) 
 const int in13[]     = {32, 33, 25, 26};     // Define the direction pin for Motor Driver
 const int in24[]     = {27, 14, 12, 13};     // Define the direction pin for Motor Driver
+
 
 // Global Variables
 // Velocity calculation variables
@@ -70,6 +72,11 @@ float v2Prev = 0;
 
 //Define PID_control class objects
 PID_control pid[NUM_MOTORS];
+
+// Serial Data
+
+float wl_goal = 0;
+float wr_goal = 0;
 
 // ********************************************* SETUP PWM CHANNELS ********************************************* //
 // *********************************************************************************************************************** //
