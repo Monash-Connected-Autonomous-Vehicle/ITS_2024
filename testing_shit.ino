@@ -1,6 +1,4 @@
 #include <util/atomic.h> // ??
-//#include "ESP32_PWM.h"
-
 
 ////////////////////////////////////
 // Establish the PID control class//
@@ -109,32 +107,27 @@ void getStr2F(String input, float &wl_target, float &wr_target) {
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);
-  ledcSetup(PWM_CHANNEL1, PWM_FREQ, PWM_RESOLUTION); // set up the pwm channel with pwm channel number, frequency and resolution
-  ledcSetup(PWM_CHANNEL2, PWM_FREQ, PWM_RESOLUTION);
-  ledcAttachPin(in13, PWM_CHANNEL0); // attach pins to channel to generate pwm
-  ledcAttachPin(in24, PWM_CHANNEL1);
-  ledcAttachPin(in24, PWM_CHANNEL2);
-  ledcAttachPin(in24, PWM_CHANNEL3);
-  ledcAttachPin(in24, PWM_CHANNEL4);
-  ledcAttachPin(in24, PWM_CHANNEL5);
-  ledcAttachPin(in24, PWM_CHANNEL6);
-  ledcAttachPin(in24, PWM_CHANNEL7);
-  
-  ledcWrite(PWM_CHANNEL0, 0); // initialise by writing one to channel
-  ledcWrite(PWM_CHANNEL1, 0); // initialise by writing one to channel
-  ledcWrite(PWM_CHANNEL2, 0);
-  ledcWrite(PWM_CHANNEL3, 0);
-  ledcWrite(PWM_CHANNEL4, 0);
-  ledcWrite(PWM_CHANNEL5, 0);
-  ledcWrite(PWM_CHANNEL6, 0);
-  ledcWrite(PWM_CHANNEL7, 0);
+  // setup pwm channels
+  for (int i = 0; i<NUM_MOTORS; i++)
+  {
+    ledcSetup(PWM_CHANNEL[i], PWM_FREQ, PWM_RESOLUTION);
+    ledcWrite(PWM_CHANNEL[i],0); // write to zero initially
+  }
+
+  // left side
+  ledcAttachPin(in13[0],PWM_CHANNEL[1]
+  ledcAttachPin(in13[1],PWM_CHANNEL[1]
+  ledcAttachPin(in24[0],PWM_CHANNEL[0]
+  ledcAttachPin(in24[1],PWM_CHANNEL[0]
+  // right side 
+  ledcAttachPin(in13[2],PWM_CHANNEL[3]
+  ledcAttachPin(in13[3],PWM_CHANNEL[3]
+  ledcAttachPin(in24[2],PWM_CHANNEL[2]
+  ledcAttachPin(in24[3],PWM_CHANNEL[2]
+
   // Set up PINS and PID Params
   for (int k = 0; k < NUM_MOTORS; k++) {
-    pinMode(enca[k], INPUT);
-    pinMode(encb[k], INPUT);
-    pinMode(in1[k], OUTPUT);
-    pinMode(in2[k], OUTPUT);
-    pid[k].setParams(10, 0, 8, 255);
+    pid[k].setParams(10, 0, 8, MAX_DUTY_CYCLE);
   }
   
   // Trigger an interrupt when encoder A rises
@@ -196,19 +189,24 @@ void loop() {
 void setMotor(int dir, int pwmVal, int in1, int in2) {
   
   if(dir == 1){
-    ledcWrite(PWM_CHANNEL1, pwmVal);
-    ledcWrite(PWM_CHANNEL2, pwmVal);
+    ledcWrite(PWM_CHANNEL[1], pwmVal);
+    ledcWrite(PWM_CHANNEL[3], pwmVal);
+    ledcWrite(PWM_CHANNEL[0], 0);
+    ledcWrite(PWM_CHANNEL[2], 0);
+
 
   }
   else if(dir == -1){
-    ledcWrite(PWM_CHANNEL1, pwmVal);
-    ledcWrite(PWM_CHANNEL2, pwmVal);
-    digitalWrite(in1,LOW);
-    digitalWrite(in2,HIGH);
+    ledcWrite(PWM_CHANNEL[1], 0);
+    ledcWrite(PWM_CHANNEL[3], 0);
+    ledcWrite(PWM_CHANNEL[0], pwmVal);
+    ledcWrite(PWM_CHANNEL[2], pwmVal);
   }
   else{
-    digitalWrite(in1,LOW);
-    digitalWrite(in2,LOW);
+    ledcWrite(PWM_CHANNEL[1], 0);
+    ledcWrite(PWM_CHANNEL[3], 0);
+    ledcWrite(PWM_CHANNEL[0], 0);
+    ledcWrite(PWM_CHANNEL[2], 0);
   }  
 }
 
