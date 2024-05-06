@@ -11,36 +11,29 @@ class PID_control {
     // Establish the default constructor(initialise KP = 1, max pwm = 255) this always run when a variable created
     PID_control(): kp(1), kd(0), ki(0), umax(255), eprev(0.0), eintegral(0.0) {}
     // Set function
-    void setParams(float kpIn, float kdIn, float kiIn, float umaxIn) {
+    void setParams(float kpIn, float kiIn, float kdIn, float umaxIn) {
       kp = kpIn; kd = kdIn; ki = kiIn; umax = umaxIn;
     }
-
     // A function to compute the control signal
     void evalu(int value, int target, float deltaT, int &pwr, int &dir) {
       // error
       int e = target - value;
-
       // derivative
       float dedt = (e - eprev) / (deltaT);
-
       // integral
       eintegral = eintegral + e * deltaT;
-      
       // control signal
       float u = kp * e + kd * dedt + ki * eintegral;
-
       // motor power
       pwr = (int) fabs(u); // fabs(x) get absolute/magnitude of a floating number 
       if ( pwr > umax ) { // cap the control signal
         pwr = umax;
       }
-
       // motor direction based on the sign of control signal
       dir = 1;
       if (u < 0) {
         dir = -1;
       }
-      
       // store previous error
       eprev = e;
     }
@@ -179,22 +172,20 @@ void loop() {
     int pwr, dir;
     // call PID evaluate to get update pwm and direction
     pid[k].evalu(posTemp[k], target[k], deltaT, pwr, dir);
-    setMotor(dir, pwr, in1[k], in2[k]);
+    setMotor(dir, pwr);
   } 
 }
 
 
 // MOTOR COMMUNICATION FUNCTIONS 
 // Set the power and direction of the Motor
-void setMotor(int dir, int pwmVal, int in1, int in2) {
+void setMotor(int dir, int pwmVal) {
   
   if(dir == 1){
     ledcWrite(PWM_CHANNEL[1], pwmVal);
     ledcWrite(PWM_CHANNEL[3], pwmVal);
     ledcWrite(PWM_CHANNEL[0], 0);
     ledcWrite(PWM_CHANNEL[2], 0);
-
-
   }
   else if(dir == -1){
     ledcWrite(PWM_CHANNEL[1], 0);
