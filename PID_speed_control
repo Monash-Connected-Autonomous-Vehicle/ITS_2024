@@ -1,5 +1,4 @@
-#include <util/atomic.h> // 
-#include "ESP32_PWM.h"
+//#include "ESP32_PWM.h"
 
 
 ////////////////////////////////////
@@ -56,17 +55,13 @@ class PID_control {
 // Define the number of motors
 #define NUM_MOTORS 4
 // Define the number of counts of encoder for a full revolution.
-#define ENC_COUNT_REV1 330
-#define ENC_COUNT_REV2 330
-#define ENC_COUNT_REV3 330
-#define ENC_COUNT_REV4 330
+#define ENC_COUNT_REV 330
 
 // Define the PINS
-const int enca[]    = {?, ?, ?, ?};     // Define the input pin for Encoder A (pins needs interrupt capabilities) 
-const int encb[]    = {?, ?, ?, ?};     // Define the input pin for Encoder B (pins needs interrupt capabilities) 
-const int pwm[]     = {?, ?, ?, ?};     // Define the output pin for PWM (pin need to have pwm function) 
-const int in1[]     = {?, ?, ?, ?};     // Define the direction pin for Motor Driver
-const int in2[]     = {?, ?, ?, ?};     // Define the direction pin for Motor Driver
+const int in13[NUM_MOTORS]     = {5, 2, 13, 27};     // Define the direction pin for Motor Driver
+const int in24[NUM_MOTORS]     = {4, 15, 14, 26};     // Define the direction pin for Motor Driver
+const int enca[NUM_MOTORS]     = {18,19,25,33};
+const int encb[NUM_MOTORS]     = {22,23,32,35};
 
 // Global Variables
 // Velocity calculation variables
@@ -81,10 +76,16 @@ float v2Filt = 0;
 float v2Prev = 0;
 
 
-
-
 //Define PID_control class objects
 PID_control pid[NUM_MOTORS];
+
+// define pwm 
+const int PWM_CHANNEL1 = 1; // ESP32 has 16 channels which can generate 16 independent waveforms
+const int PWM_CHANNEL2 = 2;
+const int PWM_FREQ = 500;  // Recall that Arduino Uno is ~490 Hz. Official ESP32 example uses 5,000Hz
+const int PWM_RESOLUTION = 8; 
+// The max duty cycle value based on PWM resolution (will be 255 if resolution is 8 bits)
+const int MAX_DUTY_CYCLE = (int)(pow(2, PWM_RESOLUTION) - 1);
 
 
 ////////////////////////////////////
@@ -93,24 +94,30 @@ PID_control pid[NUM_MOTORS];
 
 void setup() {
   // put your setup code here, to run once:
-  Serial.begin(??);
+  Serial.begin(9600);
+  ledcSetup(PWM_CHANNEL1, PWM_FREQ, PWM_RESOLUTION); // set up the pwm channel with pwm channel number, frequency and resolution
+  ledcSetup(PWM_CHANNEL2, PWM_FREQ, PWM_RESOLUTION);
+  ledcAttachPin(in13, PWM_CHANNEL1); // attach pins to channel to generate pwm
+  ledcAttachPin(in24, PWM_CHANNEL2);
+  ledcWrite(PWM_CHANNEL1, 0); // initialise by writing one to channel
+  ledcWrite(PWM_CHANNEL2, 0); // initialise by writing one to channel
 
   // Set up PINS and PID Params
   for (int k = 0; k < NUM_MOTORS; k++) {
     pinMode(enca[k], INPUT);
     pinMode(encb[k], INPUT);
-    pinMode(pwm[k], OUTPUT);
     pinMode(in1[k], OUTPUT);
     pinMode(in2[k], OUTPUT);
-
     pid[k].setParams(10, 0, 8, 255);
   }
+
   // Trigger an interrupt when encoder A rises
   attachInterrupt(digitalPinToInterrupt(enca[0]), readEncoder<0>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[1]), readEncoder<1>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[2]), readEncoder<2>, RISING);
   attachInterrupt(digitalPinToInterrupt(enca[3]), readEncoder<3>, RISING);
 }
+
 ////////////////////////////////////
 ////////////// LOOP ////////////////
 ////////////////////////////////////
@@ -153,21 +160,17 @@ void loop() {
     int pwr, dir;
     // call PID evaluate to get update pwm and direction
     pid[k].evalu(posTemp[k], target[k], deltaT, pwr, dir);
-    setMotor(dir, pwr, pwm[k], in1[k], in2[k]);
-  }
-  
- 
-  
+    setMotor(dir, pwr, in1[k], in2[k]);
+  } 
 }
 
 
 // MOTOR COMMUNICATION FUNCTIONS 
-
 // Set the power and direction of the Motor
-void setMotor(int dir, int pwmVal, int pwm, int in1, int in2) {
-  analogWrite(pwm,pwmVal);
+void setMotor(int dir, int pwmVal, int in1, int in2) {
+  ledcWrite(PWM_CHANNEL, pwmVal);
   if(dir == 1){
-    digitalWrite(in1,HIGH); 
+    digitalWrite(in1,HIGH);
     digitalWrite(in2,LOW);
   }
   else if(dir == -1){
