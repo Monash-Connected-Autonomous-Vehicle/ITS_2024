@@ -228,6 +228,12 @@ nodes:
 
   - name: 'N1'
     xpos: 3.8
-    ypos: 0.65
+    ypos: 0.6
     yaw: 0
+    ahead: 'N2'
+
+  - name: 'N2'
+    xpos: 4.3
+    ypos: 1.1
+    yaw: 90
     ahead: 'D5'
