@@ -1,0 +1,46 @@
+#define NUM_MOTORS 4
+// right wheel in13 -> in 24 and enca -> encb :)))
+const int in13[]     = {5, 2, 14, 26};     // Define the direction pin for Motor Driver
+const int in24[]     = {4, 15, 13, 27};     // Define the direction pin for Motor Driver
+const int enca[]     = {18, 19, 32, 35};
+const int encb[]     = {22, 23, 25, 33};
+// pwm channels
+const int PWM_CHANNELS[] = {0, 1, 2, 3};
+const int PWM_FREQ = 5000;
+const int PWM_RESOLUTION = 8;
+const int MAX_DUTY_CYCLE = pow(2, PWM_RESOLUTION) - 1;
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(9600);
+  for (int i = 0; i < NUM_MOTORS; i++)
+  {
+    // setup encoder pin
+    pinMode(enca[i], INPUT);
+    pinMode(encb[i], INPUT);
+    // setup pwm channel
+    ledcSetup(PWM_CHANNELS[i], PWM_FREQ, PWM_RESOLUTION);
+    ledcWrite(PWM_CHANNELS[i],0); // write to zero initially
+  }
+  // setup in1,2 motor driver pins
+  // left side
+  ledcAttachPin(in13[0],PWM_CHANNELS[1]);
+  ledcAttachPin(in24[0],PWM_CHANNELS[0]);
+  ledcAttachPin(in13[1],PWM_CHANNELS[1]);
+  ledcAttachPin(in24[1],PWM_CHANNELS[0]);
+  // right side
+  ledcAttachPin(in13[2],PWM_CHANNELS[3]);
+  ledcAttachPin(in24[2],PWM_CHANNELS[2]);
+  ledcAttachPin(in13[3],PWM_CHANNELS[3]);
+  ledcAttachPin(in24[3],PWM_CHANNELS[2]);
+}
+int pwmVal = 0.0*255; // half to full load is the operational speed range
+int pwmVal2 = 0.8*255;
+void loop() {
+  // put your main code here, to run repeatedly:
+  ledcWrite(PWM_CHANNELS[2], pwmVal2);
+  ledcWrite(PWM_CHANNELS[3], pwmVal);
+  ledcWrite(PWM_CHANNELS[0], pwmVal2);
+  ledcWrite(PWM_CHANNELS[1], pwmVal);
+  
+  
+}
