@@ -1,0 +1,150 @@
+#define NUM_MOTORS 4
+#define ENC_COUNT_REV 330
+// right wheel in13 -> in 24 and enca -> encb :)))
+const int in13[]     = {5, 2, 14, 26};     // Define the direction pin for Motor Driver
+const int in24[]     = {4, 15, 13, 27};     // Define the direction pin for Motor Driver
+const int enca[]     = {18, 19, 32, 35};
+const int encb[]     = {22, 23, 25, 33};
+// pwm channels
+const int PWM_CHANNELS[] = {0, 1, 2, 3};
+const int PWM_FREQ = 5000;
+const int PWM_RESOLUTION = 8;
+const int MAX_DUTY_CYCLE = pow(2, PWM_RESOLUTION) - 1;
+// Velocity calculation variables
+long prevT = 0; // Define the time constants
+volatile int posPrev[]        = {0,0,0,0}; // Define the prvious position of two motors
+float v1[]                    = {0,0,0,0}; // Define the RPM for vel 1 (first method)
+float v2[]                    = {0,0,0,0}; // Define the RPM for vel 2 (second method)
+
+// interrupt variables mainly encoder
+volatile int pos_i[]          = {0};             // get position from interrupt 
+volatile int currT_i[]        = {0};        // store current time from micros()
+volatile long prevT_i[]       = {0};       // store previous time from micros()
+volatile float deltaT_i[]     = {0};     // store change in time between signals
+volatile float velocity2_i[]  = {0};  // store calculated velocity 2 (in count/s)
+int pos[] = {0}; // The current position of the motor 
+float velocity2[] = {0}; //The current velocity of the motor 
+// Low Pass Filter variable array of 2 element which will represent the speed of left and right side of the vehicle 
+volatile float v1Filt[] = {0}; 
+volatile float v1Prev[] = {0};
+volatile float v2Filt[] = {0};
+volatile float v2Prev[] = {0};
+void setup() {
+  // put your setup code here, to run once:
+  Serial.begin(19200);
+  for (int i = 0; i < NUM_MOTORS; i++)
+  {
+    // setup encoder pin
+    pinMode(enca[i], INPUT);
+    pinMode(encb[i], INPUT);
+    // setup pwm channel
+    ledcSetup(PWM_CHANNELS[i], PWM_FREQ, PWM_RESOLUTION);
+    ledcWrite(PWM_CHANNELS[i],0); // write to zero initially
+  }
+  // Trigger an interrupt when encoder A rises
+  // trigger an interuppt once every 66 encoder counts
+  
+  attachInterrupt(digitalPinToInterrupt(enca[1]), readEncoder<1>, RISING);
+  // setup in1,2 motor driver pins
+  // left side
+  ledcAttachPin(in13[0],PWM_CHANNELS[1]);
+  ledcAttachPin(in24[0],PWM_CHANNELS[0]);
+  ledcAttachPin(in13[1],PWM_CHANNELS[1]);
+  ledcAttachPin(in24[1],PWM_CHANNELS[0]);
+  // right side
+  ledcAttachPin(in13[2],PWM_CHANNELS[3]);
+  ledcAttachPin(in24[2],PWM_CHANNELS[2]);
+  ledcAttachPin(in13[3],PWM_CHANNELS[3]);
+  ledcAttachPin(in24[3],PWM_CHANNELS[2]);
+}
+int pwmVal = 0.8*255; // half to full load is the operational speed range
+int pwmVal2 = 0.0*255;
+void loop() {
+  //----------------- 1. Define the target velocity-----------------------
+  float vtarget[2]; 
+  // 0: target velocity of the left motor 
+  // 1: target velocity of the right motor  
+  vtarget[0] = pwmVal; 
+
+//------------------ 2. Initialise position and make sure position updates----------------------
+  // Note here "pos_i" and "velocity_i" are both variables from the interrrupt callback.
+  for (int i = 0; i < 1; i++)
+  {
+    pos[i] = pos_i[i];
+    velocity2[i] = velocity2_i[i];
+   
+  }
+  
+//------------------ 3. Update the velocity----------------------
+  // Compute velocity with method 1 (fixed time interval)
+  // Compute the change in speed 
+  long currT = micros();
+  float deltaT = ((float) (currT - prevT))/1.0e6; // Change in T
+  float velocity1[1]; // Define the current velocity
+  // Velocity for Motor 1
+  for (int i = 0; i<1; i++)
+  {
+    velocity1[i] = (pos[i] - posPrev[i])/deltaT;
+    posPrev[i] = pos[i];
+  }
+  prevT = currT;
+//------------------ 4. Convert counts/s to RPM ----------------------------
+  for (int i = 0; i < 1; i++)
+  {
+    v1[i] = (velocity1[i]/ENC_COUNT_REV)*60;
+    v2[i] = (velocity2[i]/ENC_COUNT_REV)*60;
+  }
+
+  // Low-pass Filter (40 Hz Cutoff Pretty Good) <- Like Really need to change
+  /* left side */
+  v1Filt[0] = 0.843*v1Filt[0] + 0.0782*(v1[0]+v1[1])/2 + 0.0782*v1Prev[0];
+  v1Prev[0] = (v1[0]+v1[1])/2 ; 
+  
+  v2Filt[0] = 0.843*v2Filt[0] + 0.0782*(v2[0]+v2[1])/2 + 0.0782*v2Prev[0];
+  v2Prev[0] = (v2[0]+v2[1])/2;
+  /* right side */
+  /*v1Filt[1] = 0.843*v1Filt[1] + 0.0782*(v1[2]+v1[3])/2 + 0.0782*v1Prev[1];
+  v1Prev[1] = (v1[2]+v1[3])/2; 
+
+  v2Filt[1] = 0.843*v2Filt[1] + 0.0782*(v2[2]+v2[3])/2 + 0.0782*v2Prev[1];
+  v2Prev[1] = (v2[2]+v2[3])/2;
+  */
+  // put your main code here, to run repeatedly:
+  ledcWrite(PWM_CHANNELS[2], pwmVal2);
+  ledcWrite(PWM_CHANNELS[3], pwmVal);
+  ledcWrite(PWM_CHANNELS[0], pwmVal2);
+  ledcWrite(PWM_CHANNELS[1], pwmVal);
+  Serial.print("Actual speed = ");
+  Serial.println(v1Filt[0]);
+  delay(1);
+  
+}
+
+
+
+// function to read output signal from encoder, increases by 1 when moving forward, decreases when in reverse
+template <int j>
+void readEncoder() 
+{
+  
+  
+  int increment_i = 0; 
+  int b = digitalRead(encb[1]); // read encb 
+  if(b>0) {
+    increment_i = 1;
+    
+  }
+  else {
+    increment_i = -1;
+  }
+  pos_i[0] += increment_i; 
+  //Serial.print("Encoder count: ");
+  //Serial.println(pos_i[0]);
+  // calculate the velocity with method 2 
+  long currTj = micros(); // get the current time 
+  deltaT_i[0] = ((float) (currTj - prevT_i[0]))/1.0e6; // store the time between each signals 
+  velocity2_i[0] = increment_i/deltaT_i[0]; // velocity 
+  
+  
+  prevT_i[0] = currTj;
+}
