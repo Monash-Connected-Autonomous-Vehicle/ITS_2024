@@ -1,0 +1,11 @@
+import serial.tools.list_ports
+import time
+ports = serial.tools.list_ports.comports()
+# enter on terminal to run this script: python3 serialcomm_pid_final.py 
+ser = serial.Serial('/dev/ttyUSB0',9600, timeout=1.0)
+# add delay to give time to initialise on Arduino IDE side
+time.sleep(3)
+# stable speed range: 0 - 0.4 m/s
+ser.write(b'wl:0.4, wr:0.4')
+# close serial comm
+ser.close()
