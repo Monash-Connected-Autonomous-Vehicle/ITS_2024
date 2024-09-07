@@ -27,9 +27,10 @@ class PID_control{
     float u = kp*e + kd*dedt + ki*eintegral;
     // motor power
     pwr = (int) fabs(u);
+    if(eintegral>2)
+    {eintegral=2;}
     if( pwr > umax ){
       pwr = 255;
-      eintegral=2.55;
     }
     // motor direction
 //    dir = 1;
@@ -72,6 +73,7 @@ volatile long currT[4] = {0,0,0,0};
 int pwr[]={0,0,0,0};
 // Encoder Debouncing variables
 static bool motion[] = {false, false, false, false};
+int z = 0;
 // Time calculation variables
 long prevT_loop = 0;
 long deltaT = 0; // time interval for each loop
@@ -84,32 +86,32 @@ float wl = 0.0, wr = 0.0;
 PID_control pid[4];
 void IRAM_ATTR Encoder_ISR0() {
   motion[0] = true;
-  pos_i[0]++;
+  //pos_i[0]++;
   currT[0] = micros();
-  velocity_i[0] = 60*1.0e6/((currT[0]-prevT_i[0])*330);
+  velocity_i[0] = 60*1.0e6/((currT[0]-prevT_i[0])*20);
   prevT_i[0] = currT[0];
 }
-void IRAM_ATTR Encoder_ISR1() {
+/*void IRAM_ATTR Encoder_ISR1() {
   motion[1] = true;
-  pos_i[1]++;
+  //pos_i[1]++;
   currT[1] = micros();
   velocity_i[1] = 60*1.0e6/((currT[1]-prevT_i[1])*330);
   prevT_i[1] = currT[1];
-}
+}*/
 void IRAM_ATTR Encoder_ISR2() {
-  motion[2]++;
-  pos_i[2]++;
+  motion[2] = true;
+  //pos_i[2]++;
   currT[2] = micros();
-  velocity_i[2] = 60*1.0e6/((currT[2]-prevT_i[2])*330);
+  velocity_i[2] = 60*1.0e6/((currT[2]-prevT_i[2])*20);
   prevT_i[2] = currT[2];
 }
-void IRAM_ATTR Encoder_ISR3() {
-  motion[3]++;
-  pos_i[3]++;
+/*void IRAM_ATTR Encoder_ISR3() {
+  motion[3] = true;
+  //pos_i[3]++;
   currT[3] = micros();
   velocity_i[3] = 60*1.0e6/((currT[3]-prevT_i[3])*330);
   prevT_i[3] = currT[3];
-}
+}*/
 
 void parseStringToFloats (String input, float &wl, float &wr){
   input.replace("wl:", "");
@@ -124,10 +126,10 @@ void parseStringToFloats (String input, float &wl, float &wr){
 }
 void GPIO_init(){
   
-  pinMode(enca[0], INPUT_PULLUP);
-  pinMode(enca[1], INPUT_PULLUP);
-  pinMode(enca[2], INPUT_PULLUP);
-  pinMode(enca[3], INPUT_PULLUP);
+  pinMode(encb[0], INPUT_PULLUP);
+  pinMode(encb[1], INPUT_PULLUP);
+  pinMode(encb[2], INPUT_PULLUP);
+  pinMode(encb[3], INPUT_PULLUP);
   }
 
 void PID_control_init(PID_control *pid){
@@ -142,10 +144,10 @@ void PID_control_init(PID_control *pid){
   }
 
 void encoder_interr_init(){
-  attachInterrupt(enca[0], Encoder_ISR0, RISING); // M1
-  attachInterrupt(enca[1], Encoder_ISR1, RISING); // M2
-  attachInterrupt(enca[2], Encoder_ISR2, RISING); // M3
-  attachInterrupt(enca[3], Encoder_ISR3, RISING); // M4
+  attachInterrupt(encb[0], Encoder_ISR0, RISING); // M1
+  //attachInterrupt(encb[1], Encoder_ISR1, RISING); // M2
+  attachInterrupt(encb[2], Encoder_ISR2, RISING); // M3
+  //attachInterrupt(encb[3], Encoder_ISR3, RISING); // M4
   }
 
 void PWM_init(const int PWM_FREQ , const int PWM_RESOLUTION ){
@@ -169,14 +171,20 @@ void PWM_init(const int PWM_FREQ , const int PWM_RESOLUTION ){
 
 float filter(float *v1Filt, volatile float *velocity_i, float *v1Prev){
   float vleft, vright;
-  for (int i=0;i<4;i++)
+  for (int i=0;i<2;i++)
   {
-    v1Filt[i] = 0.843*v1Filt[i] + 0.0782*velocity_i[i] + 0.0782*v1Prev[i];
-    v1Prev[i] = velocity_i[i];
+    v1Filt[i] = 0.843*v1Filt[i] + 0.0782*velocity_i[0] + 0.0782*v1Prev[i];
+    v1Prev[i] = velocity_i[0];
     vleft=(v1Filt[0]+v1Filt[1])/2;
+    
+  }
+  for (int k = 2; k<4; k++) 
+  {
+    v1Filt[k] = 0.843*v1Filt[k] + 0.0782*velocity_i[2] + 0.0782*v1Prev[k];
+    v1Prev[k] = velocity_i[2];
+    
     vright=(v1Filt[2]+v1Filt[3])/2;
   }
-  
   
   return vright, vleft;
   
@@ -185,7 +193,7 @@ float filter(float *v1Filt, volatile float *velocity_i, float *v1Prev){
 
 void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control *pid){
   const int PWM_CHANNELS[] = {0, 1, 2, 3, 4, 5, 6, 7};
-  float r=31.5*pow(10,-3);
+  float r=32.0*pow(10,-3);
   float pi=3.14;
   float l=2*pi*r;
   float v_mps[4];
@@ -195,7 +203,7 @@ void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control 
     {
       pwr[i]=200;
       if (i==3)
-      {delay(300);}
+      {delay(50);}
     }
    
     
@@ -209,27 +217,27 @@ void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control 
     
      else if(target_v[i]>0)
        {
-         if(target_v[i]<0.2 | (target_v[i]>0.4 & v_mps[i]>0.4))
+         if(target_v[i]<0.2 || (target_v[i]>0.4 && v_mps[i]>0.4))
          {
           if(pwr[i]<175)
             {pwr[i]=175;}
           pid[i].setParams(10,0,20,MAX_DUTY_CYCLE);
           }
          else
-         {pid[i].setParams(200,0,400,MAX_DUTY_CYCLE);}
+         {pid[i].setParams(100,0,200,MAX_DUTY_CYCLE);}
          ledcWrite(PWM_CHANNELS[i], pwr[i]);
          ledcWrite(PWM_CHANNELS[i+4], 0);
        }
      else
         {
-          if(target_v[i]>-0.2 | ((target_v[i]<-0.4 & v_mps[i]<-0.4)))
+          if(target_v[i]>-0.2 || ((target_v[i]<-0.4 && v_mps[i]<-0.4)))
           {
             if(pwr[i]<175)
             {pwr[i]=175;}
             pid[i].setParams(10,0,20,MAX_DUTY_CYCLE);
             }
           else
-          {pid[i].setParams(200,0,400,MAX_DUTY_CYCLE);}
+          {pid[i].setParams(100,0,200,MAX_DUTY_CYCLE);}
           ledcWrite(PWM_CHANNELS[i], 0);
           ledcWrite(PWM_CHANNELS[i+4], pwr[i]);
       }
@@ -239,7 +247,7 @@ void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control 
     } 
 }
 
-void manually_driving(int driving_mode, float *target_v, float *v, float deltaT, int *pwr, PID_control *pid)
+void manually_driving(int driving_mode, float *target_v, float *v, float deltaT, int *pwr, PID_control *pid, float *vtest)
 {
   switch(driving_mode)
   {
@@ -250,10 +258,10 @@ void manually_driving(int driving_mode, float *target_v, float *v, float deltaT,
    target_v[3]= 0.5;
    break;
    case BACKWARD:
-   target_v[0]= -0.5;
-   target_v[1]= -0.5;
-   target_v[2]= -0.5;
-   target_v[3]= -0.5;
+   target_v[0]= -0.1;
+   target_v[1]= -0.1;
+   target_v[2]= -0.1;
+   target_v[3]= -0.1;
    break;
    case RIGHT:
    target_v[0]= -0.3;
@@ -278,6 +286,11 @@ void manually_driving(int driving_mode, float *target_v, float *v, float deltaT,
    target_v[1]= 0;
    target_v[2]= 0;
    target_v[3]= 0;
+   vtest[0] = 0;
+   vtest[1] = 0;
+   vtest[2] = 0;
+   vtest[3] = 0;
+  
    break;
     }
   PID_driving(target_v,v,deltaT,pwr,pid);
@@ -324,6 +337,14 @@ void loop() {
   prevT_loop = currT_loop;
   // filter
   filter(v1Filt, velocity_i, v1Prev);
+  for(int z = 0; z<4; z++){
+    while (motion[z]) {
+      delay(15); // debounce by waiting 2 milliseconds
+      pos_i[z]++;
+      motion[z] = false; // Only reset after confirming
+    }
+  }
+
   float v[]={v1Filt[0],v1Filt[1],v1Filt[2],v1Filt[3]};
   /*************************** set motor speed *****************************/
   float v_test[]={0,0,0,0};
@@ -332,19 +353,26 @@ void loop() {
   vtarget[2] = wr;
   vtarget[3] = wr;
   //PID_driving(vtarget,v,deltaT,pwr,pid);
-  manually_driving(command, vtarget, v, deltaT, pwr, pid);
-  for(int z = 0; z<4; z++){
-    while (motion[z]) {
-      delay(20); // debounce by waiting 2 milliseconds
-      pos_i[z]++;
-      motion[z] = false; // Only reset after confirming
-    }
-  }
+  manually_driving(BACKWARD, vtarget, v, deltaT, pwr, pid,v_test);
+  
+
+  
   
   for (int i=0;i<4;i++)
   {
-    /*v_test[i]=2*3.14*32.0*pow(10,-3)*v[i]/60;
-    Serial.print("v");
+    v_test[i]=2*3.14*32.0*pow(10,-3)*v[i]/60;
+    /*Serial.print(pos_i[0]);
+    Serial.print(" ");
+    Serial.print(pos_i[2]);*/
+    /*Serial.print(velocity_i[0]);
+    Serial.print(" ");
+    Serial.print(velocity_i[2]);*/
+    Serial.print("vactual");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(v_test[i]);
+    Serial.print(" ");
+    Serial.print("vtarget");
     Serial.print(i);
     Serial.print(": ");
     Serial.print(vtarget[i]);
@@ -352,13 +380,13 @@ void loop() {
     Serial.print("pwr ");
     Serial.print(i);
     Serial.print(": ");
-    Serial.print(pwr[i]);*/
-    Serial.print("Motor ");
+    Serial.print(pwr[i]);
+    /*Serial.print("Motor ");
     Serial.print(" ");
     Serial.print(i);
     Serial.print(" ");
     Serial.print(pos_i[i]);
-    Serial.print(" ");
+    Serial.print(" ");*/
     if(i==3){
       Serial.println();
     }
