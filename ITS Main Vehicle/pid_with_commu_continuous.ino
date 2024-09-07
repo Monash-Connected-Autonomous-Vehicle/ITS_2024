@@ -27,9 +27,10 @@ class PID_control{
     float u = kp*e + kd*dedt + ki*eintegral;
     // motor power
     pwr = (int) fabs(u);
+    if(eintegral>2)
+    {eintegral=2;}
     if( pwr > umax ){
       pwr = 255;
-      eintegral=0;
     }
     // motor direction
 //    dir = 1;
@@ -61,6 +62,7 @@ const int PWM_FREQ = 2000;
 const int PWM_RESOLUTION = 8;
 const int MAX_DUTY_CYCLE = pow(2, PWM_RESOLUTION) - 1;
 /* ************************************************ */
+String received = "";
 // Velocity calculation variables
 long prevT = 0; // Tracking previous time tick
 volatile int pos_i[4] = {0,0,0,0}; // pos interrupt
@@ -181,11 +183,11 @@ void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control 
   float v_mps[4];
   for (int i=0; i<4;i++){
     v_mps[i]=l*fabs(v[i])/60;
-    if(target_v[i]>=0.1 && v_mps[i]<=0.1)
-    {pwr[i]=175;}
-    else
+    if((fabs(target_v[i])>=0.15) && (fabs(v_mps[i])<=0.15))
     {
-      pid[i].evalu(v_mps[i], fabs(target_v[i]), deltaT, pwr[i]);
+      pwr[i]=200;
+      delay(50);
+    }
       if (target_v[i]==0)
          {
           ledcWrite(PWM_CHANNELS[i], 0);
@@ -195,19 +197,37 @@ void PID_driving(float *target_v, float *v, float deltaT, int *pwr, PID_control 
     
      else if(target_v[i]>0)
        {
-         if(target_v[i]<0.2 || (target_v[i]>0.4 && v_mps[i]>0.3))
-         {pid[i].setParams(50,0,100,MAX_DUTY_CYCLE);}
+         if(target_v[i]<0.2 || (target_v[i]>0.4 && v_mps[i]>0.4))
+         {
+          if(pwr[i]<100)
+            {pwr[i]=100;}
+          pid[i].setParams(50,0,100,MAX_DUTY_CYCLE);
+          }
+         else
+         {pid[i].setParams(200,0,400,MAX_DUTY_CYCLE);}
+         pid[i].evalu(v_mps[i], fabs(target_v[i]), deltaT, pwr[i]);
          ledcWrite(PWM_CHANNELS[i], pwr[i]);
          ledcWrite(PWM_CHANNELS[i+4], 0);
        }
      else
         {
-          if(target_v[i]>-0.2 || ((target_v[i]<-0.4 && v_mps[i]<-0.3)))
-          {pid[i].setParams(50,0,100,MAX_DUTY_CYCLE);}
+          if(target_v[i]>-0.2 || ((target_v[i]<-0.4 && v_mps[i]<-0.4)))
+          {
+            if(pwr[i]<100)
+            {pwr[i]=100;}
+            pid[i].setParams(50,0,100,MAX_DUTY_CYCLE);
+            }
+          else
+          {pid[i].setParams(200,0,400,MAX_DUTY_CYCLE);}
+          pid[i].evalu(v_mps[i], fabs(target_v[i]), deltaT, pwr[i]);
           ledcWrite(PWM_CHANNELS[i], 0);
           ledcWrite(PWM_CHANNELS[i+4], pwr[i]);
       }
-    }
+      
+    
+    if(i==3)
+    {delay(20);}
+    
     } 
 }
 
@@ -216,10 +236,10 @@ void manually_driving(int driving_mode, float *target_v, float *v, float deltaT,
   switch(driving_mode)
   {
    case FORWARD:
-   target_v[0]= 0.5;
-   target_v[1]= 0.5;
-   target_v[2]= 0.5;
-   target_v[3]= 0.5;
+   target_v[0]= 0.3;
+   target_v[1]= 0.3;
+   target_v[2]= 0.3;
+   target_v[3]= 0.3;
    break;
    case BACKWARD:
    target_v[0]= -0.5;
@@ -227,17 +247,17 @@ void manually_driving(int driving_mode, float *target_v, float *v, float deltaT,
    target_v[2]= -0.5;
    target_v[3]= -0.5;
    break;
-   case LEFT:
-   target_v[0]= -0.5;
-   target_v[1]= -0.5;
-   target_v[2]= 0.5;
-   target_v[3]= 0.5;
-   break;
    case RIGHT:
-   target_v[0]= 0.5;
-   target_v[1]= 0.5;
-   target_v[2]= -0.5;
-   target_v[3]= -0.5;
+   target_v[0]= -0.4;
+   target_v[1]= -0.4;
+   target_v[2]= 0.4;
+   target_v[3]= 0.4;
+   break;
+   case LEFT:
+   target_v[0]= 0.4;
+   target_v[1]= 0.4;
+   target_v[2]= -0.4;
+   target_v[3]= -0.4;
    break;
    case STOP:
    target_v[0]= 0;
@@ -270,8 +290,23 @@ void loop() {
   
   /************************  read data *********************************/
   if (Serial.available() > 0){
-    String received = Serial.readStringUntil('\n');
-    command = received.substring(0).toInt();
+    received = Serial.readStringUntil('\n');
+    if(received == "FORWARD"){
+      command = FORWARD;
+    } 
+    else if (received == "BACKWARD") {
+      command = BACKWARD;
+    } 
+    else if (received == "LEFT") {
+      command = LEFT;
+    }
+    else if (received == "RIGHT") {
+      command = RIGHT;
+    }
+    else if (received == "STOP") {
+      command = STOP;
+    }
+  
     //parseStringToFloats(received, wl, wr);
   }
   /************************  get measured speed *****************************/
@@ -293,18 +328,17 @@ void loop() {
   for (int i=0;i<4;i++)
   {
     v_test[i]=2*3.14*31.5*pow(10,-3)*v[i]/60;
-//    Serial.print("v");
-//    Serial.print(i);
-//    Serial.print(": ");
-//    Serial.print(vtarget[i]);
-//    Serial.print(" ");
-//    Serial.print("pwr ");
-//    Serial.print(i);
-//    Serial.print(": ");
-//    Serial.print(pwr[i]);
-//    Serial.print(" ");
+    Serial.print("v");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(vtarget[i]);
+    Serial.print(" ");
+    Serial.print("v ");
+    Serial.print(i);
+    Serial.print(": ");
+    Serial.print(v_test[i]);
+    Serial.print(" ");
     if(i==3){
-      Serial.print(command);
       Serial.println();
     }
   }
