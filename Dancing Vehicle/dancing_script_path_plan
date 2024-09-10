@@ -285,7 +285,7 @@ void loop() {
   
   for (int i=0;i<4;i++)
   {
-    v_test[i]=2*3.14*31.5*pow(10,-3)*v[i]/60;
+    
     Serial.print("vtarget");
     Serial.print(i);
     Serial.print(": ");
